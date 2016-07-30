@@ -1,0 +1,4 @@
+GET / @com.rawskys.microservices.internaluser.controllers.InternalUsers.status
+GET /status @com.rawskys.microservices.internaluser.controllers.InternalUsers.status
+POST /register @com.rawskys.microservices.internaluser.controllers.InternalUsers.register
+POST /verify @com.rawskys.microservices.internaluser.controllers.InternalUsers.verify
