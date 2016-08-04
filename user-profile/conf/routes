@@ -1,0 +1,1 @@
+POST /create @com.rawskys.microservices.userprofile.controllers.UserProfileController.create
