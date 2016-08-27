@@ -1,1 +1,2 @@
+GET / @com.rawskys.microservices.userprofile.controllers.UserProfileController.status
 POST /create @com.rawskys.microservices.userprofile.controllers.UserProfileController.create

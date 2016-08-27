@@ -11,24 +11,6 @@ case class NewUser(id: Option[String], name: String, pass: String, email: String
 
 object NewUser {
 
-	implicit object UserReads extends Reads[NewUser] {
-
-		override def reads(json: JsValue): JsResult[NewUser] = json match {
-			case obj: JsObject => try {
-				val id = (obj \ "_id").asOpt[String]
-				val name = (obj \ "user").as[String]
-				val pass = (obj \ "pass").as[String]
-				val email = (obj \ "email").as[String]
-
-				JsSuccess(NewUser(id, name, pass, email))
-			} catch {
-				case cause: Throwable => JsError(cause.getMessage)
-			}
-
-			case _ => JsError("expected.jsobject")
-		}
-	}
-
 	val form = Form(
 		mapping(
 			"_id" -> optional(text verifying pattern(

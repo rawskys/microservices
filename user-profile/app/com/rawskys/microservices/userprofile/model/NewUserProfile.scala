@@ -10,15 +10,6 @@ case class NewUserProfile(id: String, name: String, email: String)
 
 object NewUserProfile {
 
-	implicit object UserProfileWrites extends OWrites[NewUserProfile] {
-
-		override def writes(userProfile: NewUserProfile): JsObject = Json.obj(
-			"_id" -> userProfile.id,
-			"name" -> userProfile.name,
-			"email" -> userProfile.email
-		)
-	}
-
 	implicit object NewUserProfileWriter extends BSONDocumentWriter[NewUserProfile] {
 
 		override def write(newUserProfile: NewUserProfile): BSONDocument = {

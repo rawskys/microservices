@@ -4,6 +4,7 @@ import javax.inject.Inject
 
 import com.rawskys.microservices.internaluser.model.{Login, NewUser}
 import org.mindrot.jbcrypt.BCrypt
+import play.api.Configuration
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -16,6 +17,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class InternalUsers @Inject()(
+								 configuration: Configuration,
 								 ws: WSClient,
 								 val reactiveMongoApi: ReactiveMongoApi,
 								 val messagesApi: MessagesApi)
@@ -31,7 +33,8 @@ class InternalUsers @Inject()(
 		}
 	}
 
-	val createUserProfileRequest = ws.url("http://localhost:9000/create")
+	val port = configuration.underlying.getInt("userprofile.port")
+	val createUserProfileRequest = ws.url(s"http://localhost:$port/create")
 
 	def register = Action.async { implicit request =>
 		implicit val messages = messagesApi.preferred(request)
@@ -62,12 +65,9 @@ class InternalUsers @Inject()(
 				errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
 				login => collection.find(BSONDocument("user" -> login.username)).one.map {
 					case None => BadRequest(Json.obj("error" -> "notFound"))
-					case Some(user) => {
-						println("user: " + user.getAs[String]("user"))
-						println("pass: " + user.getAs[String]("pass").getOrElse(""))
+					case Some(user) =>
 						Ok(Json.obj("verified" ->
 								BCrypt.checkpw(login.password, user.getAs[String]("pass").getOrElse(""))))
-					}
 				}.recover {
 					case e => BadRequest(Json.obj("error" -> e.getLocalizedMessage))
 				}

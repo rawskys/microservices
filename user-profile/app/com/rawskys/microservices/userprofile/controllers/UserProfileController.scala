@@ -17,12 +17,19 @@ class UserProfileController @Inject()(val reactiveMongoApi: ReactiveMongoApi, va
 
 	val collection = db.collection[BSONCollection]("userprofile")
 
+	def status = Action.async {
+		collection.count().map { profiles =>
+			Ok(Json.obj("profiles" -> profiles))
+		}.recover {
+			case e => BadRequest(Json.obj("error" -> e.getMessage))
+		}
+	}
+
 	def create = Action.async { implicit request =>
 		implicit val messages = messagesApi.preferred(request)
 		NewUserProfile.form.bindFromRequest.fold(
 			errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
 			newUserProfile => {
-				println(newUserProfile)
 				collection.insert(newUserProfile).map {
 					case result if result.hasErrors => BadRequest(Json.obj("error" -> result.message))
 					case _ => Ok(Json.obj("status" -> "added"))
