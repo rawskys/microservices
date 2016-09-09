@@ -9,12 +9,14 @@ import play.api.libs.Crypto
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, Json, _}
 import play.api.libs.ws.WSClient
+import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 import scalaoauth2.provider.{AccessToken, AuthInfo, AuthorizationRequest, DataHandler}
 
-class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configuration) extends DataHandler[AccountInfo] {
+class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configuration)
+		extends DataHandler[AccountInfo] {
 
 	val accessTokenExpire = Some(config.getMilliseconds("oauth2.tokenExpire").getOrElse(60 * 60L * 1000) / 1000)
 
@@ -24,18 +26,22 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 	}
 
 	val port = config.underlying.getNumber("internalusers.port")
+
 	val verifyUserRequest = ws.url(s"http://localhost:$port/verify")
 
 	def findUser(request: AuthorizationRequest): Future[Option[AccountInfo]] = {
 		verifyUserRequest.withHeaders("Accept" -> "application/json")
-				.withRequestTimeout(10000)
+				.withRequestTimeout(10000.millis)
 				.post(Json.obj("username" -> request.param("username"), "password" -> request.param("password")))
 				.map {
-					case r if r.status == 200 => Some(AccountInfo(request.param("username").get))
-					case _ => None
-				}.recover {
-			case e => None
-		}
+					case r if r.status == 200 && r.json == Json.obj("verified" -> true) => {
+						Some(AccountInfo(request.param("username").get))
+					}
+					case e => None
+				}
+				.recover {
+					case e => None
+				}
 	}
 
 	def createAccessToken(authInfo: AuthInfo[AccountInfo]): Future[AccessToken] = {
@@ -123,7 +129,9 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 	}
 
 	implicit val tokenFormat = Json.format[AccessToken]
+
 	implicit val accountInfoFormat = Json.format[AccountInfo]
+
 	implicit val authInfoFormat: Format[AuthInfo[AccountInfo]] =
 		((__ \ "user").format[AccountInfo] ~
 				(__ \ "clientId").formatNullable[String] ~

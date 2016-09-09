@@ -18,11 +18,12 @@ class Dashboard @Inject()(
 		Ok(Json.obj())
 	}
 
+	val port = configuration.underlying.getInt("oauth2.port")
+	val accessTokenUrl = ws.url(s"http://localhost:$port/oauth2/access_token")
+
 	val hello = Action { request =>
-		request.session.get("userProfile").map { userProfile =>
+		request.headers.get("").map { userProfile =>
 			Ok(s"Hello, $userProfile")
 		}.getOrElse(Redirect(routes.Login.form()))
 	}
-//	val port = configuration.underlying.getInt("userprofile.port")
-//	val createUserProfileRequest = ws.url(s"http://localhost:$port/create")
 }

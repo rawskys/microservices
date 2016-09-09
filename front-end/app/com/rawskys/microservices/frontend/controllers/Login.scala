@@ -8,6 +8,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, AnyContent, Controller, Request}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 class Login @Inject()(configuration: Configuration, ws: WSClient) extends Controller {
 
@@ -28,7 +29,7 @@ class Login @Inject()(configuration: Configuration, ws: WSClient) extends Contro
 
 	def verify = Action.async { request =>
 		verifyUserRequest.withHeaders("Accept" -> "application/json")
-				.withRequestTimeout(10000)
+				.withRequestTimeout(10000.millis)
 				.post(request.body.asJson.get)
 				.map {
 					case r if r.status != 200 => BadRequest(Json.obj("error" -> r.json))

@@ -11,7 +11,7 @@ object Login {
 	val form = Form(
 		mapping(
 			"username" -> nonEmptyText,
-			"password" -> nonEmptyText(12)
+			"password" -> nonEmptyText
 		) {
 			(username, password) => Login(username, password)
 		} { login =>

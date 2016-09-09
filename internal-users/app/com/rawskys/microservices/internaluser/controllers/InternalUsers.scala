@@ -15,6 +15,7 @@ import reactivemongo.bson.BSONDocument
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class InternalUsers @Inject()(
 								 configuration: Configuration,
@@ -34,6 +35,7 @@ class InternalUsers @Inject()(
 	}
 
 	val port = configuration.underlying.getInt("userprofile.port")
+
 	val createUserProfileRequest = ws.url(s"http://localhost:$port/create")
 
 	def register = Action.async { implicit request =>
@@ -41,7 +43,7 @@ class InternalUsers @Inject()(
 		NewUser.form.bindFromRequest.fold(
 			errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
 			newUser => createUserProfileRequest.withHeaders("Accept" -> "application/json")
-					.withRequestTimeout(10000)
+					.withRequestTimeout(10000.millis)
 					.post(Json.obj("_id" -> newUser.id.get, "name" -> newUser.name, "email" -> newUser.email))
 					.flatMap { response => {
 						response match {
