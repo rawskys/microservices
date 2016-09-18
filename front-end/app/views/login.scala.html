@@ -1,4 +1,4 @@
-@(facebookAuthUrl: String)
+@(authUrl: String, facebookAuthUrl: String, redirectUri: String)
 
 <html lang="en">
 <head>
@@ -8,9 +8,12 @@
 </head>
 <body>
 <h1>Login</h1>
-<form onsubmit="return login(this)" method="post">
-    <input id="username" placeholder="username"/>
-    <input id="password" placeholder="password" type="password"/>
+<form action="@authUrl" method="post" onsubmit="return login(this, '@redirectUri')">
+    <input name="username" placeholder="username" value="Tina" />
+    <input name="password" placeholder="password" type="password" value="F00dF00dF00d" />
+    <input type="hidden" name="client_id" value="frontend" />
+    <input type="hidden" name="client_secret" value="" />
+    <input type="hidden" name="grant_type" value="password" />
     <button>Log in</button>
 </form>
 <p>

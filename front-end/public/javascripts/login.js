@@ -1,15 +1,19 @@
-function login(e) {
-    var username = document.getElementById("username").value
-    var password = document.getElementById("password").value
-    var http = new XMLHttpRequest()
-    http.open("POST", document.URL, true)
-    http.setRequestHeader("Content-type", "application/json")
-    http.setRequestHeader("Accept", "application/json")
-    http.onreadystatechange = function () {
-        if (http.readyState == 4) {
-            console.log(JSON.parse(http.responseText))
-        }
-    }
-    http.send(JSON.stringify({username: username, password: password}))
-    return false
+function login(form, redirectUri) {
+	fetch(form.action, {method: "POST", body: new FormData(form)})
+		.then(function(response) {
+		    if (response.ok) {
+                return response.json()
+		    } else {
+		        throw "Bad credentials"
+		    }
+		})
+		.then(function(json) {
+		    localStorage.setItem("accessToken", json.access_token)
+		    localStorage.setItem("refreshToken", json.refresh_token)
+            window.location = redirectUri
+		})
+		.catch(function(e) {
+		    console.error(e)
+		})
+	return false
 }

@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import com.rawskys.microservices.internaluser.model.{Login, NewUser}
 import org.mindrot.jbcrypt.BCrypt
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -34,11 +34,9 @@ class InternalUsers @Inject()(
 		}
 	}
 
-	val port = configuration.underlying.getInt("userprofile.port")
-
-	val createUserProfileRequest = ws.url(s"http://localhost:$port/create")
-
 	def register = Action.async { implicit request =>
+		val port = configuration.underlying.getInt("userprofile.port")
+		val createUserProfileRequest = ws.url(s"http://localhost:$port/create")
 		implicit val messages = messagesApi.preferred(request)
 		NewUser.form.bindFromRequest.fold(
 			errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
@@ -60,19 +58,20 @@ class InternalUsers @Inject()(
 		)
 	}
 
-	def verify = Action.async {
-		implicit request =>
+	def verify = Action.async { implicit request =>
 			implicit val messages = messagesApi.preferred(request)
 			Login.form.bindFromRequest.fold(
 				errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
-				login => collection.find(BSONDocument("user" -> login.username)).one.map {
-					case None => BadRequest(Json.obj("error" -> "notFound"))
-					case Some(user) =>
-						Ok(Json.obj("verified" ->
-								BCrypt.checkpw(login.password, user.getAs[String]("pass").getOrElse(""))))
-				}.recover {
-					case e => BadRequest(Json.obj("error" -> e.getLocalizedMessage))
-				}
+				login => collection.find(BSONDocument("user" -> login.username)).one
+						.map {
+							case None => BadRequest(Json.obj("error" -> "notFound"))
+							case Some(user) =>
+								Ok(Json.obj("verified" ->
+										BCrypt.checkpw(login.password, user.getAs[String]("pass").getOrElse(""))))
+						}
+						.recover {
+							case e => BadRequest(Json.obj("error" -> e.getLocalizedMessage))
+						}
 			)
 	}
 }

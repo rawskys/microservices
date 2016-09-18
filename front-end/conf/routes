@@ -1,5 +1,5 @@
-GET /status @com.rawskys.microservices.frontend.controllers.Dashboard.status
-GET / @com.rawskys.microservices.frontend.controllers.Dashboard.hello
-GET /login @com.rawskys.microservices.frontend.controllers.Login.form
-POST /login @com.rawskys.microservices.frontend.controllers.Login.verify
+GET /status @controllers.Dashboard.status
+GET /login @controllers.Login.form
 GET /assets/*file controllers.Assets.at(path="/public", file)
+GET / @controllers.Dashboard.index
+GET /profile @controllers.Dashboard.profile

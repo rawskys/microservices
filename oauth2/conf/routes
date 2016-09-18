@@ -1,1 +1,3 @@
-POST /oauth2/access_token @com.rawskys.microservices.oauth.OAuth2Controller.token
+POST /token @controllers.OAuth2.token
+GET /user @controllers.OAuth2.user
+OPTIONS /token @controllers.OAuth2.allow

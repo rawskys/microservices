@@ -4,14 +4,14 @@ import javax.inject.Inject
 
 import org.joda.time.DateTime
 import org.sedis.Pool
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 import play.api.libs.Crypto
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, Json, _}
 import play.api.libs.ws.WSClient
+
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
 import scalaoauth2.provider.{AccessToken, AuthInfo, AuthorizationRequest, DataHandler}
 
@@ -34,10 +34,10 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 				.withRequestTimeout(10000.millis)
 				.post(Json.obj("username" -> request.param("username"), "password" -> request.param("password")))
 				.map {
-					case r if r.status == 200 && r.json == Json.obj("verified" -> true) => {
+					case r if r.status == 200 && r.json == Json.obj("verified" -> true) =>
 						Some(AccountInfo(request.param("username").get))
-					}
-					case e => None
+					case e =>
+						None
 				}
 				.recover {
 					case e => None
