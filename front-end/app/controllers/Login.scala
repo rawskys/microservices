@@ -18,10 +18,10 @@ class Login @Inject()(configuration: Configuration, ws: WSClient) extends Contro
 		s"https://www.facebook.com/dialog/oauth?client_id=$facebookClientId&redirect_uri=$redirectUri"
 	}
 
-	def form(): Action[AnyContent] = form(routes.Dashboard.index().url)
-
-	def form(redirectUrl: String) = Action { implicit request =>
-		Unauthorized(views.html.login(authUrl, facebookAuthUrl, redirectUrl))
+	val form = Action { implicit request =>
+			Logger.debug(request.headers.toString())
+		val redirectUri = request.headers.get("referer").getOrElse(routes.Dashboard.index().url)
+		Unauthorized(views.html.login(authUrl, facebookAuthUrl, redirectUri))
 	}
 
 	def status = Action(Ok(Json.obj("status" -> "ok")))
