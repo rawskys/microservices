@@ -30,10 +30,26 @@ function loadDashboard() {
                 return response.json()
             })
             .then(function(response) {
-                if (!response.user) {
-                    document.location = "/login"
+                if (response.error) {
+                    throw response
                 }
                 return response.user
+            })
+            .catch(function(e) {
+                if (e.error === "invalid token") {
+                    var params = new FormData()
+                    params.append("grant_type", "refresh_token")
+                    params.append("client_id", "frontend")
+                    params.append("client_secret", "")
+                    params.append("refresh_token", localStorage.getItem("refreshToken"))
+                    fetch(e.refreshTokenUri, {method: "POST", body: params})
+                        .then(function(response) {
+                            console.log(response)
+                            alert("wait!")
+                        })
+                } else {
+                    document.location = "/login"
+                }
             })
         },
         render: function () {

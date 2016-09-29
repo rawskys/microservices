@@ -68,7 +68,7 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 		w.expire(key(username, clientId), tokenObject.expiresIn.get.toInt)
 
 		w.set(s"oauth:refresh_token:${tokenObject.refreshToken.get}", Json.stringify(Json.toJson(authInfo)))
-		w.expire(s"oauth:refresh_token:${tokenObject.refreshToken.get}", tokenObject.expiresIn.get.toInt)
+		w.expire(s"oauth:refresh_token:${tokenObject.refreshToken.get}", 100 * tokenObject.expiresIn.get.toInt)
 
 		w.set(s"oauth:access_token:${tokenObject.token}", Json.stringify(Json.toJson(authInfo)))
 		w.expire(s"oauth:access_token:${tokenObject.token}", tokenObject.expiresIn.get.toInt)
