@@ -14,6 +14,7 @@ function loadDashboard() {
         },
         fetchUsername: function() {
             var accessToken = localStorage.getItem("accessToken")
+            var self = this.fetchUsername
             if (!accessToken) {
                 document.location = "/login"
             }
@@ -42,14 +43,23 @@ function loadDashboard() {
                     params.append("client_id", "frontend")
                     params.append("client_secret", "")
                     params.append("refresh_token", localStorage.getItem("refreshToken"))
-                    fetch(e.refreshTokenUri, {method: "POST", body: params})
+                    return fetch(e.refreshTokenUri, {method: "POST", body: params})
                         .then(function(response) {
-                            console.log(response)
-                            alert("wait!")
+                            return response.json()
+                        })
+                        .then(function(response) {
+                            if (response.error === "invalid_grant") {
+                                throw "invalid grant"
+                            }
+                            localStorage.setItem("accessToken", response.access_token)
+                            return self()
                         })
                 } else {
-                    document.location = "/login"
+                    throw "invalid grant"
                 }
+            })
+            .catch(function(e) {
+                document.location = "/login"
             })
         },
         render: function () {
