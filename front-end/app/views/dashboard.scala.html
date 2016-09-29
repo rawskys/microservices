@@ -4,10 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <script src="@routes.Assets.at("javascripts/react.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/react-dom.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/redux.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/react-redux.js")" type="text/javascript"></script>
     <script src="@routes.Assets.at("javascripts/dashboard.js")" type="text/javascript"></script>
 </head>
 <body>
-<h1>Dashboard</h1>
-<p>Hello, user!</p>
+<div id="container"></div>
+<script type="text/javascript">
+    loadDashboard()
+</script>
 </body>
 </html>

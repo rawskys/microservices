@@ -44,6 +44,7 @@ class InternalUsers @Inject()(
 					.withRequestTimeout(10000.millis)
 					.post(Json.obj("_id" -> newUser.id.get, "name" -> newUser.name, "email" -> newUser.email))
 					.flatMap { response => {
+						Logger.debug(response.toString)
 						response match {
 							case r if r.status != 200 => Future.successful(BadRequest(Json.obj("error" -> r.json)))
 							case _ => collection.insert(newUser)
