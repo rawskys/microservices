@@ -19,9 +19,8 @@ class Login @Inject()(configuration: Configuration, ws: WSClient) extends Contro
 	}
 
 	val form = Action { implicit request =>
-			Logger.debug(request.headers.toString())
 		val redirectUri = request.headers.get("referer").getOrElse(routes.Dashboard.index().url)
-		Unauthorized(views.html.login(authUrl, facebookAuthUrl, redirectUri))
+		Ok(views.html.login(authUrl, facebookAuthUrl, redirectUri))
 	}
 
 	def status = Action(Ok(Json.obj("status" -> "ok")))

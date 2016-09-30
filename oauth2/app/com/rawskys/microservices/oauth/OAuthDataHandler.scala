@@ -88,13 +88,13 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 	}
 
 	def refreshAccessToken(authInfo: AuthInfo[AccountInfo], refreshToken: String): Future[AccessToken] = {
-		val accessToken = Crypto.generateToken
-		val now = DateTime.now().toDate
-		val tokenObject = AccessToken(accessToken, Some(refreshToken), authInfo.scope, accessTokenExpire, now)
-
-		saveToken(authInfo, tokenObject)
-
-		Future.successful(tokenObject)
+		Future.successful(getAccessToken(authInfo.user.username, authInfo.clientId.get).getOrElse {
+			val accessToken = Crypto.generateToken
+			val now = DateTime.now().toDate
+			val tokenObject = AccessToken(accessToken, Some(refreshToken), authInfo.scope, accessTokenExpire, now)
+			saveToken(authInfo, tokenObject)
+			tokenObject
+		})
 	}
 
 	def findAuthInfoByAccessToken(accessToken: AccessToken): Future[Option[AuthInfo[AccountInfo]]] = {

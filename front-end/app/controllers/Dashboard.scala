@@ -38,7 +38,7 @@ class Dashboard @Inject()(
 					.map {
 						case r if r.statusText == "OK" => Ok(Json.obj("user" -> r.json))
 						case r =>
-							BadRequest(Json.obj("error" -> "invalid token", "refreshTokenUri" -> oauthRefreshTokenUrl))
+							Unauthorized(Json.obj("error" -> "invalid token", "refreshTokenUri" -> oauthRefreshTokenUrl))
 					}
 					.recover {
 						case e =>
