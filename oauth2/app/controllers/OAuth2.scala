@@ -21,13 +21,4 @@ class OAuth2 @Inject()(dataHandler: OAuthDataHandler) extends Controller with OA
 	def user = OAuth2ProviderActionBuilders.AuthorizedAction(dataHandler) { request =>
 		Ok(Json.obj("id" -> request.authInfo.user.id, "name" -> request.authInfo.user.username))
 	}
-
-	def allow = Action(
-		Ok.withHeaders(
-//			ACCESS_CONTROL_ALLOW_METHODS -> HttpMethod.POST.toString,
-//			ACCESS_CONTROL_MAX_AGE -> "86400",
-//			ACCESS_CONTROL_ALLOW_HEADERS -> CACHE_CONTROL,
-//			ACCESS_CONTROL_ALLOW_ORIGIN -> "http://localhost:9000"
-		)
-	)
 }

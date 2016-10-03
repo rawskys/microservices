@@ -55,8 +55,6 @@ function loadDashboard() {
                         }
                     })
                     .catch(function(e) {
-                        console.log(e)
-                        alert(e)
                         document.location = "/login"
                     })
                     .then(function(user) {

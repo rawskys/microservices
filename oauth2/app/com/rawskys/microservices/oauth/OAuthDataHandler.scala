@@ -5,7 +5,6 @@ import javax.inject.Inject
 import org.joda.time.DateTime
 import org.sedis.Pool
 import play.api.{Configuration, Logger}
-import play.api.libs.Crypto
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, Json, _}
 import play.api.libs.ws.{WSClient, WSResponse}
@@ -19,6 +18,8 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 	extends DataHandler[AccountInfo] {
 
 	val accessTokenExpire = Some(config.getMilliseconds("oauth2.tokenExpire").getOrElse(60 * 60L * 1000) / 1000)
+
+	val bearerTokenGenerator = new BearerTokenGenerator
 
 	def validateClient(request: AuthorizationRequest): Future[Boolean] = {
 		// TODO validate client
@@ -47,8 +48,8 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 	}
 
 	def createAccessToken(authInfo: AuthInfo[AccountInfo]): Future[AccessToken] = {
-		val refreshToken = Some(Crypto.generateToken)
-		val accessToken = Crypto.generateToken
+		val refreshToken = Some(bearerTokenGenerator.generateSHAToken(authInfo.user.id))
+		val accessToken = bearerTokenGenerator.generateSHAToken(authInfo.user.id)
 		val now = DateTime.now().toDate
 
 		val tokenObject = AccessToken(accessToken, refreshToken, authInfo.scope, accessTokenExpire, now)
@@ -91,7 +92,7 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 
 	def refreshAccessToken(authInfo: AuthInfo[AccountInfo], refreshToken: String): Future[AccessToken] = {
 		Future.successful(getAccessToken(authInfo.user.username, authInfo.clientId.get).getOrElse {
-			val accessToken = Crypto.generateToken
+			val accessToken = bearerTokenGenerator.generateSHAToken(authInfo.user.id)
 			val now = DateTime.now().toDate
 			val tokenObject = AccessToken(accessToken, Some(refreshToken), authInfo.scope, accessTokenExpire, now)
 			saveToken(authInfo, tokenObject)
@@ -156,7 +157,7 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 	}
 
 	def deleteAuthCode(code: String): Future[Unit] = {
-		Future.successful()
+		Future.successful(())
 	}
 
 	def findAccessToken(token: String): Future[Option[AccessToken]] = {
