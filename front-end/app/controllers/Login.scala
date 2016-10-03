@@ -12,14 +12,16 @@ class Login @Inject()(configuration: Configuration, ws: WSClient) extends Contro
 	val authPort = configuration.underlying.getNumber("oauth.port")
 	val authUrl = s"http://localhost:$authPort/token"
 
-	def facebookAuthUrl(redirectUri: String) = {
-		val facebookClientId = configuration.getNumber("facebook.clientid").getOrElse(1)
-		s"https://www.facebook.com/dialog/oauth?client_id=$facebookClientId&redirect_uri=$redirectUri"
-	}
-
 	val form = Action { implicit request =>
-		val redirectUri = request.headers.get("referer").getOrElse(routes.Dashboard.index().absoluteURL)
-		Ok(views.html.login(authUrl, facebookAuthUrl(redirectUri), redirectUri))
+		val facebookCode: Option[String] = request.getQueryString("code")
+		Ok(views.html.login(
+			authUrl,
+			configuration.getNumber("facebook.clientid").getOrElse(1),
+			facebookCode.map(_ => routes.Login.form().absoluteURL)
+				.getOrElse(request.headers.get("referer").getOrElse(routes.Dashboard.index().absoluteURL)),
+			facebookCode.getOrElse(""),
+			facebookCode.map(_ => "authorization_code").getOrElse("password")
+		))
 	}
 
 	def status = Action(Ok(Json.obj("status" -> "ok")))

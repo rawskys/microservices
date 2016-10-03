@@ -117,7 +117,7 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 		ws.url(s"https://graph.facebook.com/v2.7/oauth/access_token")
 			.withQueryString(
 				"client_id" -> config.underlying.getString("facebook.clientid"),
-				"redirect_uri" -> "http://localhost:9000/",
+				"redirect_uri" -> "http://localhost:9000/login",
 				"client_secret" -> config.underlying.getString("facebook.secret"),
 				"code" -> code
 			)

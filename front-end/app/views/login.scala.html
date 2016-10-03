@@ -1,10 +1,10 @@
-@(authUrl: String, facebookAuthUrl: String, redirectUri: String)
+@(authUrl: String, facebookClientId: Number, redirectUri: String, facebookCode: String, grantType: String)
 
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="@routes.Assets.at("javascripts/login.js")" type="text/javascript"></script>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<script src="@routes.Assets.at("javascripts/login.js")" type="text/javascript"></script>
 </head>
 <body>
 <h1>Login</h1>
@@ -13,11 +13,32 @@
     <input name="password" placeholder="password" type="password" value="F00dF00dF00d" />
     <input type="hidden" name="client_id" value="frontend" />
     <input type="hidden" name="client_secret" value="" />
-    <input type="hidden" name="grant_type" value="password" />
+    <input type="hidden" name="grant_type" value="@grantType" />
+    <input type="hidden" name="code" value="@facebookCode" />
     <button>Log in</button>
 </form>
+<script type="text/javascript">
+if ("@grantType" === "authorization_code") {
+    login(document.forms[0], "@redirectUri")
+} else {
+    var loginRedirectUri = localStorage.getItem("loginRedirectUri")
+    if (loginRedirectUri) {
+        localStorage.removeItem("loginRedirectUri")
+        document.location = loginRedirectUri
+    }
+}
+
+function storeRedirectUri(link, uri) {
+    link.href = link.href + "&redirect_uri=" + document.location
+    localStorage.setItem("loginRedirectUri", uri)
+}
+</script>
 <p>
-    You have no account? <a href="register">Sign up</a> or <a href="@facebookAuthUrl">use</a> your Facebook account.
+	You have no account? <a href="register">Sign up</a> or
+	<a
+			onclick="return storeRedirectUri(this, '@redirectUri')"
+			href="https://www.facebook.com/dialog/oauth?client_id=@facebookClientId"
+	>use</a> your Facebook account.
 </p>
 </body>
 </html>
