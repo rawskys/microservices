@@ -13,14 +13,16 @@ class Login @Inject()(configuration: Configuration, ws: WSClient) extends Contro
 	val authUrl = s"http://localhost:$authPort/token"
 
 	val form = Action { implicit request =>
-		val facebookCode: Option[String] = request.getQueryString("code")
-		Ok(views.html.login(
+		val redirectUri = request.headers.get("referer").getOrElse(routes.Dashboard.index().url)
+		Ok(views.html.login(authUrl, routes.Login.facebook().url + "?redirectUri=" + redirectUri, redirectUri))
+	}
+
+	val facebook = Action { request =>
+		Ok(views.html.facebook(
 			authUrl,
 			configuration.getNumber("facebook.clientid").getOrElse(1),
-			facebookCode.map(_ => routes.Login.form().absoluteURL)
-				.getOrElse(request.headers.get("referer").getOrElse(routes.Dashboard.index().absoluteURL)),
-			facebookCode.getOrElse(""),
-			facebookCode.map(_ => "authorization_code").getOrElse("password")
+			request.getQueryString("code").getOrElse(""),
+			request.getQueryString("redirectUri").getOrElse("")
 		))
 	}
 

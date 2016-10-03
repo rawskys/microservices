@@ -1,5 +1,6 @@
 GET /status @controllers.Dashboard.status
 GET /login @controllers.Login.form
+GET /facebook @controllers.Login.facebook
 GET /assets/*file controllers.Assets.at(path="/public", file)
 GET / @controllers.Dashboard.index
 GET /profile @controllers.Dashboard.profile
