@@ -21,4 +21,8 @@ class OAuth2 @Inject()(dataHandler: OAuthDataHandler) extends Controller with OA
 	def user = OAuth2ProviderActionBuilders.AuthorizedAction(dataHandler) { request =>
 		Ok(Json.obj("id" -> request.authInfo.user.id, "name" -> request.authInfo.user.username))
 	}
+
+	def status = Action { request =>
+		Ok(Json.obj())
+	}
 }

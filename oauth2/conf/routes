@@ -1,2 +1,3 @@
+GET / @controllers.OAuth2.status
 POST /token @controllers.OAuth2.token
 GET /user @controllers.OAuth2.user

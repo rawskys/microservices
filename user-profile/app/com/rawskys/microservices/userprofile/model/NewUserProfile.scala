@@ -1,12 +1,11 @@
 package com.rawskys.microservices.userprofile.model
 
 import play.api.data.Form
-import play.api.data.Forms.{mapping, nonEmptyText, text}
+import play.api.data.Forms._
 import play.api.data.validation.Constraints.{emailAddress, pattern}
-import play.api.libs.json._
 import reactivemongo.bson.{BSONDocument, BSONDocumentWriter, BSONObjectID}
 
-case class NewUserProfile(id: String, name: String, email: String)
+case class NewUserProfile(id: Option[String], name: String, email: Option[String], facebookId: Option[String])
 
 object NewUserProfile {
 
@@ -14,18 +13,20 @@ object NewUserProfile {
 
 		override def write(newUserProfile: NewUserProfile): BSONDocument = {
 			BSONDocument(
-				"_id" -> BSONObjectID(newUserProfile.id),
+				"_id" -> newUserProfile.id.map(BSONObjectID(_)),
 				"name" -> newUserProfile.name,
-				"email" -> newUserProfile.email
+				"email" -> newUserProfile.email,
+				"facebookId" -> newUserProfile.facebookId
 			)
 		}
 	}
 
 	val form = Form(
 		mapping(
-			"_id" -> (text verifying pattern("""[a-fA-F0-9]{24}""".r, error = "error.objectId")),
+			"_id" -> optional(text verifying pattern("""[a-fA-F0-9]{24}""".r, error = "error.objectId")),
 			"name" -> nonEmptyText,
-			"email" -> (text verifying emailAddress)
+			"email" -> optional(text verifying emailAddress),
+			"facebookId" -> optional(text)
 		)(NewUserProfile.apply)(NewUserProfile.unapply)
 	)
 }

@@ -23,7 +23,7 @@ if ("@code") {
 } else {
     localStorage.setItem("facebookLoginRedirectUri", "@redirectUri")
 		var redirectUri = document.location.href.split("?")[0]
-		document.location = "https://www.facebook.com/dialog/oauth?client_id=@clientId&redirect_uri=" + redirectUri
+		document.location = "https://www.facebook.com/dialog/oauth?client_id=@clientId&scope=email&redirect_uri=" + redirectUri
 }
 </script>
 </body>

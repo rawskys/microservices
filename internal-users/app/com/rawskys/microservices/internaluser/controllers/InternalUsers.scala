@@ -11,7 +11,7 @@ import play.api.libs.ws.WSClient
 import play.api.mvc.{Action, Controller}
 import play.modules.reactivemongo.{MongoController, ReactiveMongoApi, ReactiveMongoComponents}
 import reactivemongo.api.collections.bson.BSONCollection
-import reactivemongo.bson.BSONDocument
+import reactivemongo.bson.{BSONDocument, BSONObjectID}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -65,13 +65,12 @@ class InternalUsers @Inject()(
 				errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
 				login => collection.find(BSONDocument("user" -> login.username)).one
 						.map {
-							case None => BadRequest(Json.obj("error" -> "notFound"))
-							case Some(user) =>
-								Ok(Json.obj("verified" ->
-										BCrypt.checkpw(login.password, user.getAs[String]("pass").getOrElse(""))))
+							case Some(user) if BCrypt.checkpw(login.password, user.getAs[String]("pass").get) =>
+								Ok(Json.obj("userId" -> user.getAs[BSONObjectID]("_id").get.stringify))
+							case _ => BadRequest(Json.obj("error" -> "notFound"))
 						}
 						.recover {
-							case e => BadRequest(Json.obj("error" -> e.getLocalizedMessage))
+							case e => InternalServerError(Json.obj("error" -> e.getLocalizedMessage))
 						}
 			)
 	}
