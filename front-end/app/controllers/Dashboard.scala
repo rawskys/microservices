@@ -25,10 +25,9 @@ class Dashboard @Inject()(
 		Ok(views.html.dashboard())
 	}
 
-	val authPort = configuration.underlying.getNumber("oauth.port")
-
-	val oauthUserUrl = s"http://localhost:$authPort/user"
-	val oauthRefreshTokenUrl = s"http://localhost:$authPort/token"
+	val authUri = configuration.underlying.getString("oauth.uri")
+	val oauthUserUrl = s"$authUri/user"
+	val oauthRefreshTokenUrl = s"$authUri/token"
 
 	val profile = Action.async { implicit request =>
 		request.headers.get("Authorization").map(token =>

@@ -1,3 +1,4 @@
 GET / @com.rawskys.microservices.userprofile.controllers.UserProfileController.status
 POST /create @com.rawskys.microservices.userprofile.controllers.UserProfileController.create
-GET /facebookUserProfile/:id @com.rawskys.microservices.userprofile.controllers.UserProfileController.readFacebookUserProfile(id: String)
+GET /facebookUserProfile/:id @com.rawskys.microservices.userprofile.controllers.UserProfileController.readFacebookUserProfile(id: Long)
+PUT /facebookUserProfile/:id @com.rawskys.microservices.userprofile.controllers.UserProfileController.updateFacebookUserProfile(id: Long)

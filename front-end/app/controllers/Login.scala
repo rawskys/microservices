@@ -9,8 +9,8 @@ import play.api.mvc.{Action, AnyContent, Controller, Request}
 
 class Login @Inject()(configuration: Configuration, ws: WSClient) extends Controller {
 
-	val authPort = configuration.underlying.getNumber("oauth.port")
-	val authUrl = s"http://localhost:$authPort/token"
+	val authUri = configuration.underlying.getString("oauth.uri")
+	val authUrl = s"$authUri/token"
 
 	val form = Action { implicit request =>
 		val redirectUri = request.headers.get("referer").getOrElse(routes.Dashboard.index().url)

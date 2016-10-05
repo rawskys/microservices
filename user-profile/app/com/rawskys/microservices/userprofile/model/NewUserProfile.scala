@@ -5,7 +5,7 @@ import play.api.data.Forms._
 import play.api.data.validation.Constraints.{emailAddress, pattern}
 import reactivemongo.bson.{BSONDocument, BSONDocumentWriter, BSONObjectID}
 
-case class NewUserProfile(id: Option[String], name: String, email: Option[String], facebookId: Option[String])
+case class NewUserProfile(id: Option[String], name: String, email: Option[String], facebookId: Option[Long])
 
 object NewUserProfile {
 
@@ -26,7 +26,7 @@ object NewUserProfile {
 			"_id" -> optional(text verifying pattern("""[a-fA-F0-9]{24}""".r, error = "error.objectId")),
 			"name" -> nonEmptyText,
 			"email" -> optional(text verifying emailAddress),
-			"facebookId" -> optional(text)
+			"facebookId" -> optional(longNumber)
 		)(NewUserProfile.apply)(NewUserProfile.unapply)
 	)
 }
