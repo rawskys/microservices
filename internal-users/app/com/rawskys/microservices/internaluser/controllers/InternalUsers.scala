@@ -26,7 +26,7 @@ class InternalUsers @Inject()
 ) extends Controller with MongoController with ReactiveMongoComponents {
 
 	val collection = db.collection[BSONCollection]("user")
-	val userprofileUri = configuration.underlying.getString("userprofile.uri")
+	val userProfileUri = configuration.underlying.getString("userprofile.uri")
 
 	val status = Action.async {
 		collection.count().map {
@@ -42,10 +42,10 @@ class InternalUsers @Inject()
 			implicit val messages = messagesApi.preferred(request)
 			NewUser.form.bindFromRequest.fold(
 				errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
-				newUser => ws.url(s"$userprofileUri/create")
+				newUser => ws.url(s"$userProfileUri/create")
 					.withHeaders("Accept" -> "application/json")
 					.withRequestTimeout(10000.millis)
-					.post(Json.obj("_id" -> newUser.id.get, "name" -> newUser.name, "email" -> newUser.email))
+					.post(Json.obj("_id" -> newUser.id, "name" -> newUser.name, "email" -> newUser.email))
 					.flatMap {
 						case r if r.status != 200 => Future.successful(BadRequest(Json.obj("error" -> r.json)))
 						case _ => collection.insert(newUser)
@@ -55,7 +55,9 @@ class InternalUsers @Inject()
 							}
 					}
 					.recover {
-						case e => BadRequest(Json.obj("error" -> e.getLocalizedMessage))
+						case e =>
+							Logger.error("could not create a new user")
+							InternalServerError(Json.obj("error" -> e.getLocalizedMessage))
 					}
 			)
 	}

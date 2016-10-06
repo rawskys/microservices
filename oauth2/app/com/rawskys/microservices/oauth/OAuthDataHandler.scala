@@ -162,14 +162,11 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 			.flatMap {
 				case r if r.statusText == "OK" =>
 					facebookUserProfileUrl(fbUser.id).put(Json.obj("name" -> fbUser.firstName, "email" -> fbUser.email))
-						.flatMap {
+						.map {
 							case _ =>
-								Future.successful(Some(AuthInfo(
-									AccountInfo((r.json \ "id").as[String], fbUser.firstName),
-									Some("frontend"),
-									None,
-									None
-								)))
+								Some(
+									AuthInfo(AccountInfo((r.json \ "id").as[String], fbUser.firstName), Some("frontend"), None, None)
+								)
 						}
 						.recover {
 							case e =>
@@ -182,12 +179,13 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 						.flatMap {
 							case _ => facebookUserProfileUrl(fbUser.id).get()
 								.map {
-									case r =>
-										Some(AuthInfo(AccountInfo((r.json \ "id").as[String], fbUser.firstName), Some("frontend"), None, None))
+									case r => Some(
+										AuthInfo(AccountInfo((r.json \ "id").as[String], fbUser.firstName), Some("frontend"), None, None)
+									)
 								}
 								.recover {
 									case e =>
-										Logger.error("get facebook user profile request error", e)
+										Logger.error("read facebook user profile request error", e)
 										None
 								}
 						}

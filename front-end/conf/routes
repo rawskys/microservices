@@ -1,6 +1,8 @@
 GET /status @controllers.Dashboard.status
 GET /login @controllers.Login.form
 GET /facebook @controllers.Login.facebook
+GET /registration @controllers.Registration.form
+POST /registration @controllers.Registration.send
 GET /assets/*file controllers.Assets.at(path="/public", file)
 GET / @controllers.Dashboard.index
 GET /profile @controllers.Dashboard.profile

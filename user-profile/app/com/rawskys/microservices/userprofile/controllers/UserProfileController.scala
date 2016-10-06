@@ -37,7 +37,9 @@ class UserProfileController @Inject()(val reactiveMongoApi: ReactiveMongoApi, va
 					case result if result.hasErrors => BadRequest(Json.obj("error" -> result.message))
 					case r => Ok(Json.obj("id" -> newUserProfile.id))
 				} recover {
-					case e => InternalServerError(Json.obj("error" -> e.getMessage))
+					case e =>
+						Logger.error("could not create a user profile", e)
+						InternalServerError(Json.obj("error" -> e.getMessage))
 				}
 			}
 		)
