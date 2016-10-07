@@ -1,5 +1,5 @@
 package com.rawskys.microservices.oauth
 
-case class AccountInfo(id: String, username: String) {
+case class AccountInfo(id: String) {
 
 }

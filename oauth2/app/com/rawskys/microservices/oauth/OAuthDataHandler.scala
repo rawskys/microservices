@@ -47,7 +47,7 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 			.post(Json.obj("username" -> passwordRequest.username, "password" -> passwordRequest.password))
 			.map {
 				case r if r.statusText == "OK" =>
-					Some(AccountInfo((r.json \ "userId").as[String], passwordRequest.username))
+					Some(AccountInfo((r.json \ "userId").as[String]))
 				case r =>
 					None
 			}
@@ -165,7 +165,7 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 						.map {
 							case _ =>
 								Some(
-									AuthInfo(AccountInfo((r.json \ "id").as[String], fbUser.firstName), Some("frontend"), None, None)
+									AuthInfo(AccountInfo((r.json \ "id").as[String]), Some("frontend"), None, None)
 								)
 						}
 						.recover {
@@ -180,7 +180,7 @@ class OAuthDataHandler @Inject()(ws: WSClient, sedisPool: Pool, config: Configur
 							case _ => facebookUserProfileUrl(fbUser.id).get()
 								.map {
 									case r => Some(
-										AuthInfo(AccountInfo((r.json \ "id").as[String], fbUser.firstName), Some("frontend"), None, None)
+										AuthInfo(AccountInfo((r.json \ "id").as[String]), Some("frontend"), None, None)
 									)
 								}
 								.recover {
