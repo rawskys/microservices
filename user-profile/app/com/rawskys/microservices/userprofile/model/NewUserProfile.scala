@@ -23,7 +23,7 @@ object NewUserProfile {
 
 	val form = Form(
 		mapping(
-			"_id" -> optional(text verifying pattern("""[a-fA-F0-9]{24}""".r, error = "error.objectId")),
+			"id" -> optional(text verifying pattern("""[a-fA-F0-9]{24}""".r, error = "error.objectId")),
 			"name" -> nonEmptyText,
 			"email" -> optional(text verifying emailAddress),
 			"facebookId" -> optional(longNumber)

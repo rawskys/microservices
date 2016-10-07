@@ -54,7 +54,7 @@ class UserProfileController @Inject()(val reactiveMongoApi: ReactiveMongoApi, va
 					BSONDocument("facebookId" -> facebookUserId),
 					BSONDocument("$set" -> facebookUserProfile)
 				) map {
-					case r if r.hasErrors => InternalServerError(Json.obj("error" -> r.message))
+					case r if r.hasErrors => BadRequest(Json.obj("error" -> r.message))
 					case r => Ok(Json.obj("id" -> r.originalDocument.get.getAs[String]("_id")))
 				} recover {
 					case e => InternalServerError(Json.obj("error" -> e.getMessage))

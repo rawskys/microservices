@@ -7,15 +7,15 @@ import play.api.data.validation.Constraints.{emailAddress, pattern}
 import play.api.libs.json._
 import reactivemongo.bson.{BSONDocument, BSONDocumentWriter, BSONObjectID}
 
-case class NewUser(id: Option[String], name: String, pass: String, email: String)
+case class NewUser(name: String, pass: String, email: String) {
+	lazy val id = BSONObjectID.generate()
+}
 
 object NewUser {
 
 	val form = Form(
 		mapping(
-			"_id" -> optional(text verifying pattern(
-				"""[a-fA-F0-9]{24}""".r, error = "error.objectId")),
-			"user" -> nonEmptyText,
+			"name" -> nonEmptyText,
 			"pass" -> nonEmptyText(12),
 			"email" -> (text verifying emailAddress)
 		)(NewUser.apply)(NewUser.unapply)
@@ -25,8 +25,8 @@ object NewUser {
 
 		override def write(newUser: NewUser): BSONDocument = {
 			BSONDocument(
-				"_id" -> newUser.id.map(s => BSONObjectID(s)).getOrElse(BSONObjectID.generate),
-				"user" -> newUser.name,
+				"_id" -> newUser.id,
+				"name" -> newUser.email,
 				"pass" -> BCrypt.hashpw(newUser.pass, BCrypt.gensalt())
 			)
 		}

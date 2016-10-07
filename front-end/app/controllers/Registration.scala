@@ -25,14 +25,14 @@ class Registration @Inject()(configuration: Configuration, ws: WSClient, message
 		NewUser.form.bindFromRequest.fold(
 			form => Future.successful(BadRequest(form.errorsAsJson)),
 			newUser => ws.url(internalUsersUri + "/register")
-					.post(Json.obj("user" -> newUser.username, "pass" -> newUser.password, "email" -> newUser.email))
-					.map{
-						case r if r.statusText == "OK" => Ok(Json.obj())
-						case r => BadRequest(Json.obj("error" -> (r.json \ "error").get))
-					}
-			    .recover {
-						case e => InternalServerError(Json.obj("error" -> e.getLocalizedMessage))
-					}
+				.post(Json.obj("name" -> newUser.firstName, "pass" -> newUser.password, "email" -> newUser.email))
+				.map {
+					case r if r.statusText == "OK" => Ok(Json.obj())
+					case r => BadRequest(Json.obj("error" -> (r.json \ "error").get))
+				}
+				.recover {
+					case e => InternalServerError(Json.obj("error" -> e.getLocalizedMessage))
+				}
 		)
 	}
 }

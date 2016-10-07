@@ -45,14 +45,14 @@ class InternalUsers @Inject()
 				newUser => ws.url(s"$userProfileUri/create")
 					.withHeaders("Accept" -> "application/json")
 					.withRequestTimeout(10000.millis)
-					.post(Json.obj("_id" -> newUser.id, "name" -> newUser.name, "email" -> newUser.email))
+					.post(Json.obj("id" -> newUser.id.stringify, "name" -> newUser.name, "email" -> newUser.email))
 					.flatMap {
-						case r if r.status != 200 => Future.successful(BadRequest(Json.obj("error" -> r.json)))
-						case _ => collection.insert(newUser)
+						case r if r.statusText == "OK" => collection.insert(newUser)
 							.map(_ => Ok(Json.obj("status" -> "added")))
 							.recover {
 								case e => BadRequest(Json.obj("error" -> e.getLocalizedMessage))
 							}
+						case r => Future.successful(BadRequest(Json.obj("error" -> r.json)))
 					}
 					.recover {
 						case e =>
@@ -67,7 +67,7 @@ class InternalUsers @Inject()
 			implicit val messages = messagesApi.preferred(request)
 			Login.form.bindFromRequest.fold(
 				errors => Future.successful(BadRequest(Json.obj("error" -> errors.errorsAsJson))),
-				login => collection.find(BSONDocument("user" -> login.username)).one
+				login => collection.find(BSONDocument("name" -> login.username)).one
 					.map {
 						case Some(user) if BCrypt.checkpw(login.password, user.getAs[String]("pass").get) =>
 							Ok(Json.obj("userId" -> user.getAs[BSONObjectID]("_id").get.stringify))
