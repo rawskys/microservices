@@ -5,4 +5,4 @@ GET /registration @controllers.Registration.form
 POST /registration @controllers.Registration.send
 GET /assets/*file controllers.Assets.at(path="/public", file)
 GET / @controllers.Dashboard.index
-GET /profile @controllers.Dashboard.profile
+GET /profile/:id @controllers.Dashboard.readProfile(id: String)

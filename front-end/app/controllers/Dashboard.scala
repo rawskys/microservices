@@ -21,35 +21,25 @@ class Dashboard @Inject()(
 		Ok(Json.obj())
 	}
 
-	val index = Action {
-		Ok(views.html.dashboard())
-	}
-
 	val authUri = configuration.underlying.getString("oauth.uri")
 
 	val oauthUserUrl = s"$authUri/user"
 
 	val oauthRefreshTokenUrl = s"$authUri/token"
 
+	val index = Action {
+		Ok(views.html.dashboard(authUri + "/account", oauthRefreshTokenUrl))
+	}
+
 	val userProfileUri = configuration.underlying.getString("userprofile.uri")
 
-	val profile = Action.async { implicit request =>
+	def readProfile(id: String) = Action.async { request =>
 		request.headers.get("Authorization").map(token =>
-			ws.url(oauthUserUrl)
+			ws.url(userProfileUri + "/profile/" + id)
 					.withHeaders("Authorization" -> token)
 					.get()
-					.flatMap {
-						case r if r.statusText == "OK" => ws.url(userProfileUri + "/profile/" + (r.json \ "id").as[String])
-								.get()
-								.map {
-									case r if r.statusText == "OK" => Ok(Json.obj("user" -> r.json))
-								}
-								.recover {
-									case e =>
-										InternalServerError(Json.obj("error" -> e.getLocalizedMessage))
-								}
-						case r =>
-							Future.successful(Unauthorized(Json.obj("error" -> "invalid token", "refreshTokenUri" -> oauthRefreshTokenUrl)))
+					.map {
+						case r if r.statusText == "OK" => Ok(Json.obj("name" -> (r.json \ "name").as[String]))
 					}
 					.recover {
 						case e =>
